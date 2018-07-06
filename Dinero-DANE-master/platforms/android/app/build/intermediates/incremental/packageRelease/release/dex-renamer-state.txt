@@ -1,0 +1,4 @@
+#Wed Jun 27 17:26:49 ART 2018
+base.0=C\:\\Users\\ehermann\\Desktop\\Dinero-DANE-master27062018\\Dinero-DANE-master\\platforms\\android\\app\\build\\intermediates\\transforms\\dex\\release\\0
+renamed.0=classes.dex
+file.0=C\:\\Users\\ehermann\\Desktop\\Dinero-DANE-master27062018\\Dinero-DANE-master\\platforms\\android\\app\\build\\intermediates\\transforms\\dex\\release\\0\\classes.dex
