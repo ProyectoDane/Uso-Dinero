@@ -1,0 +1,86 @@
+PASOS NECESARIOS PARA CAMBIOS DE VERSION:
+Tener en cuenta que estos pasos son necesarios cada vaz que se quiera subir una nueva versión al "PlayStore"
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+1) Dentro de la carpeta raiz (Ejemplo: "C:\Users\%Usuarios%\Desktop\Dinero-DANE\Dinero-DANE-2.4.0") abrir el archivo config.xml y modificar la etiqueta: <widget> donde especifica la versión ("version="2.4.0") a la que se desea. Comose puede ver a continuación:
+	<widget id="com.dinerodane" version="2.4.0" versionCode="2" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+2) Dentro de la carpeta raiz (Ejemplo : "C:\Users\%Usuarios%\Desktop\Dinero-DANE\Dinero-DANE-2.4.0") ejecutar el comando "phonegap cordova platforms remove android"
+3) Luego, en la misma carpeta ejecutar el comando "phonegap cordova platforms add android"
+
+Esto actualizara todas los manifest con la nueva versión.
+
+
+
+PASOS PARA COMPILAR, GENERAR Y SUBIR EL "APK":
+NOTA: Todos los pasos se ejecutan dentro de un entorno de "simbolo de sistema" (cmd en Windows, ccm/terminar en Mac) 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+1) Compilación de la app (debug),instalacion en dispositivo dummy y prueba:
+
+- Se debe navegar a la ubicación de directorio donde se encuentra la app alojada, ej: "cd C:\Users\%Usuarios%\Desktop\Dinero-DANE\Dinero-DANE-2.4.0\"
+
+- Una vez dentro, ingresar a los siguientes sub directorios: "cd platforms\android\cordova"
+
+- Aquí ejecutar el comando "phonegap cordova android build". Esto generará un .apk en versión "debug" sin firma, y se lo debe instalar para poder ser probado.
+  El apk puede encontrarse dentro del directorio siguiente "C:\Users\%Usuarios%\Desktop\Dinero-DANE\Dinero-DANE-2.4.0\platforms\android\app\build\outputs\apk\debug\"
+
+- Conectar fisicamente (via usb) el dispositivo a la computadora. Y comprobar que sea reconocido, con el siguiente comando: "adb device"
+
+- Terminada la comprobación es necesario la instalación del .apk (al ser versión "debug" no es necesaria la firma).
+  Con el comando "adb install C:\Users\%Usuarios%\Desktop\Dinero-DANE\Dinero-DANE-2.4.0\platforms\android\app\build\outputs\apk\debug\nombreApkDebug.apk"
+
+2) Generación apk de release y firmar:
+- Luego de las pruebas pertinentes, ya se puede compilar la versión "release". Denuevo en el direcatorio de "cordova" volvemos a ejecutar el comando: build pero ahora con el agregado de release. "phonegap cordova android build --release".
+  Esto creará un apk sin firma (app-release-unsigned.apk) en el directorio: "C:\Users\%Usuarios%\Desktop\Dinero-DANE\Dinero-DANE-2.4.0\platforms\android\app\build\outputs\apk\release\".
+
+- Previo a la firma es recomendable hacer un "zipalign". Para esto debemos dirigirnos al directorio donde se ha instalado el Android. EJ: "cd C:\Users\%Usuarios%\AppData\Local\Android\Sdk\build-tools\%VersionAndroid%\".
+  Usar el comando "zipalign -v -c 4 inputApk outputApk", donde el outputApk es el directorio donde dejamos un nuevo apk que se genera y le seteamos el nombre deseado. Esto puede verse en el siguiente ejemplo:
+  "zipalign -v -c 4 C:\Users\%Usuarios%\Desktop\Dinero-DANE-master27062018\Dinero-DANE-master 2.4.0\platforms\android\app\build\outputs\apk\release\app-release-unsigned.apk C:\Users\%Usuarios%\Desktop\Dinero-DANE\Dinero-DANE-2.4.0\platforms\android\app\build\outputs\apk\release\dinerodane.apk"
+  
+- Ya puede firmarse el apk, con el siguiente comando: "apksigner sign --ks signCertifiacte.keystore unsignedAPK.apk" EJ:
+  "apksigner sign --ks C:\Users\%Usuarios%\Desktop\Dinero-DANE\Dinero-DANE-2.4.0\monedasybilletesDane.keystore C:\Users\%Usuarios%\Desktop\Dinero-DANE\Dinero-DANE-2.4.0\platforms\android\app\build\outputs\apk\release\dinerodane.apk".
+  En este punto nos solicitara la password que se usó para crear el "keystore" (mas adelante se detalla como crear un keystore). Luego de introducirla (al ingresar la pass no se vera por pantalla) presionar "Enter" y procederá a firmar el apk.
+
+3) Verificación de Firma y pruebas sobre release previos a subir al "store":
+- Puede comprobarse si la firma quedo apropiadamente aplicada con el siguiente comando: "apksigner verify app.apk" EJ: "apksigner verify --print-certs C:\Users\%Usuarios%\Desktop\Dinero-DANE\Dinero-DANE-2.4.0\platforms\android\app\build\outputs\apk\release\dinerodane.apk"
+  O de otra forma puede ser: "apksigner verify -v C:\Users\%Usuarios%\Desktop\Dinero-DANE\Dinero-DANE-2.4.0\platforms\android\app\build\outputs\apk\release\dinerodane.apk"
+
+- Se debe volver a instalar este apk de release si se lo quiere probar. "adb install C:\Users\%Usuarios%\Desktop\Dinero-DANE\Dinero-DANE-2.4.0\platforms\android\app\build\outputs\apk\release\dinerodane.apk"
+  De lo contrario ya esta listo el .apk para ser subido al PlayStore.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ 
+¿QUE ES EL KEYSTORE?
+Es un certificado por le cual se firma el archivo ".apk" (compilado de la app) para poder ser subido al PlayStore.
+
+¿CÓMO GENERAR UN KEYSTORE?
+Primero debemos situarnos en el directorio de instalación de JAVA: "cd C:\Program Files\Java\%JavaVersion%\bin\"
+Luego ingresamos el siguiente comando: "keytool -genkey -v -keystore nombreKeysstore.keystore -alias nombreDeAlias -keyalg RSA -keysize 2048 -validity 20000"
+al presionar "Enter" solicitará los siguientes datos (uno a uno):
+-Password
+-First and lastname
+-Name of Organization unit
+-Name of Organization
+-City
+-State
+-Country
+
+Una vez ingresados, se genera el keystore en el directorio actualdonde estamos parados (bin de la carpeta de java).
+
+NOTA IMPORTANTE: RECORDAR LA CONTRASEÑA (PASSWORD) PORQUE CADA VEZ QUE SE FIRME UN APK DEBERA SER INGRESADA.
+
+ Así ya tenemos nuestro CERTIFICADO para firmar los apk. A continuación se detallan los datos del actual keystore usado (monedasybilletesDane.keystore)
+--------------------------
+DATOS DEL KEYSTORE (DANE):
+--------------------------
+Password: dane12456
+Nombre y Apellido Pablo Hernan Fiuza
+Nombre Unidad de Organización: Proyecto Dane
+Nombre Organización: Fundacion Tinc
+Ciudad: Ciudad Autonoma de Buenos Aires
+Estado o Provincia: Buenos Aires
+Código Pais: AR
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+LINKS DE RESPALDO:
+Android Comand Lines: https://developer.android.com/studio/command-line/
+Phonegap CLI: https://phonegap.com/blog/2014/11/13/phonegap-cli-3-6-3/
+Blog Generar Keystore: http://vardhan-justlikethat.blogspot.com/2012/05/android-solution-install-parse-failed.html
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
